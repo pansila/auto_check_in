@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-import os, sys
+import os
+import sys
 import argparse
 import requests
 import random
 import time
-import datetime
 import firebase_admin
+from datetime import datetime
 from firebase_admin import firestore
 from firebase_admin import credentials
 
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     doc = doc_ref.get()
 
     if doc.exists:
-        hour = datetime.datetime.today().hour
+        hour = datetime.today().hour
         data = doc.to_dict()
         print(data)
         if 'checked' in data:
@@ -102,7 +103,7 @@ if __name__ == '__main__':
             elif data['checked']:
                 sys.exit(0)
 
-            if random.random(hour, 23) == 23:
+            if random.randint(hour, 23) == 23:
                 doc_ref.set({'checked': true})
             else:
                 sys.exit(0)
