@@ -85,7 +85,7 @@ if __name__ == '__main__':
         print('Error: invalid option, index is out of range')
         sys.exit(1)
 
-    cred = credentials.Certificate(os.path.abspath("~/service-account-file.json"))
+    cred = credentials.Certificate(os.path.expanduser("~/service-account-file.json"))
     default_app = firebase_admin.initialize_app(cred)
 
     s = random.randint(0, 145)
