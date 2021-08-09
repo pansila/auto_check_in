@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     if doc.exists:
         hour = datetime.today().hour
-        if 'checked' not in data:
+        if 'checked' not in doc.to_dict():
             doc_ref.set({'checked': False})
         if hour == 0:
             doc_ref.set({'checked': False})
