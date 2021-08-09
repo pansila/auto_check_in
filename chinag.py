@@ -9,22 +9,22 @@ from firebase_admin import firestore
 from firebase_admin import credentials
 
 
-SITE1 = 'j01.best'
-SITE2 = 'j04.space'
-SITES = [SITE1, SITE2]
+SITE1 = 'http://j01.best'
+SITE2 = 'https://j04.space'
+SITES = [SITE2, SITE1]
 
-URL_LOGIN   = 'http://{}/auth/register'
-URL_USER1   = 'http://{}/user'
-URL_SIGNIN  = 'http://{}/signin?c={}' # http://j01.best/signin?c=0.8043126313168425
-URL_CHECKIN = 'http://{}/user/checkin?c={}' # http://j01.best/user/checkin?c=0.01422644502656678
-URL_USER2   = 'http://{}/xiaoma/get_user?c={}' # http://j01.best/xiaoma/get_user?c=0.2444034705646254
+URL_LOGIN   = '{}/auth/register'
+URL_USER1   = '{}/user'
+URL_SIGNIN  = '{}/signin?c={}' # http://j01.best/signin?c=0.8043126313168425
+URL_CHECKIN = '{}/user/checkin?c={}' # http://j01.best/user/checkin?c=0.01422644502656678
+URL_USER2   = '{}/xiaoma/get_user?c={}' # http://j01.best/xiaoma/get_user?c=0.2444034705646254
 
 HEADERS = {
     'Connection': 'keep-alive',
     'Accept': 'application/json, text/plain, */*',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
     'Content-Type': 'application/json;charset=UTF-8',
-    'Origin': 'http://{}',
+    'Origin': '{}',
     #'Referer': 'http://j01.best/signin',
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -95,6 +95,6 @@ if __name__ == '__main__':
     db = firestore.client(default_app)
     doc = db.collection('checked').document('DUZA2gGVjdSflSOHKvW1')
     print(doc.get())
-    print(doc.get('checked'))
+    print(doc.get(['checked']))
 
     #sys.exit(main(args, SITES[args.index]))
