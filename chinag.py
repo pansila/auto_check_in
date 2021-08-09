@@ -4,6 +4,8 @@ import argparse
 import requests
 import random
 import time
+import firebase_admin
+from firebase_admin import firestore
 
 SITE1 = 'j01.best'
 SITE2 = 'j04.space'
@@ -81,8 +83,15 @@ if __name__ == '__main__':
         print('Error: invalid option, index is out of range')
         sys.exit(1)
 
+    default_app = firebase_admin.initialize_app()
+
     s = random.randint(0, 145)
     print(f'sleep {s}s before running')
-    time.sleep(s)
+    #time.sleep(s)
 
-    sys.exit(main(args, SITES[args.index]))
+    db = firestore.client(default_app)
+    doc = db.collection('checked').document('DUZA2gGVjdSflSOHKvW1')
+    print(doc.get())
+    print(doc.get('checked'))
+
+    #sys.exit(main(args, SITES[args.index]))
