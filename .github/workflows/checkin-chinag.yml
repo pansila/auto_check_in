@@ -10,10 +10,10 @@ on:
     - cron: 0 1 * * *
 
 jobs:
-  build:
+  checkin:
     runs-on: ubuntu-latest
-    env: 
-      GOOGLE_APPLICATION_CREDENTIALS: "${{ env.HOME }}/service-account-file.json"
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ env.HOME }}/service-account-file.json
 
     steps:
     - uses: actions/checkout@v2
