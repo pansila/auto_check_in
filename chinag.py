@@ -97,18 +97,16 @@ if __name__ == '__main__':
         hour = datetime.today().hour
         data = doc.to_dict()
         print(data)
-        if 'checked' in data:
-            if hour == 0:
-                doc_ref.set({'checked': false})
-            elif data['checked']:
-                sys.exit(0)
+        if 'checked' not in data:
+            doc_ref.set({'checked': False})
+        if hour == 0:
+            doc_ref.set({'checked': False})
+        elif doc_ref.get().to_dict()['checked']:
+            sys.exit(0)
 
-            if random.randint(hour, 23) == 23:
-                doc_ref.set({'checked': true})
-            else:
-                sys.exit(0)
+        if random.randint(hour, 23) == 23:
+            doc_ref.set({'checked': True})
         else:
-            doc.set({'checked': false})
             sys.exit(0)
     else:
         print('Error: doc not found')
