@@ -95,8 +95,6 @@ if __name__ == '__main__':
 
     if doc.exists:
         hour = datetime.today().hour
-        data = doc.to_dict()
-        print(data)
         if 'checked' not in data:
             doc_ref.set({'checked': False})
         if hour == 0:
@@ -114,6 +112,6 @@ if __name__ == '__main__':
 
     s = random.randint(0, 145)
     print(f'sleep {s}s before running')
-    #time.sleep(s)
+    time.sleep(s)
 
-    #sys.exit(main(args, SITES[args.index]))
+    sys.exit(main(args, SITES[args.index]))
