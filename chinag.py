@@ -3,6 +3,7 @@ import os, sys
 import argparse
 import requests
 import random
+import time
 
 SITE1 = 'j01.best'
 SITE2 = 'j04.space'
@@ -29,6 +30,7 @@ def rand():
     return str(random.random())[:18]
 
 def main(args, site):
+    now = time.time()
     s = requests.Session()
     HEADERS['Origin'] = HEADERS['Origin'].format(site)
 
@@ -64,6 +66,7 @@ def main(args, site):
         print('Error: user2: error')
         return 1
 
+    print(f'time used: {time.time() -  now}')
     return 0
 
 if __name__ == '__main__':
@@ -77,5 +80,9 @@ if __name__ == '__main__':
     if int(args.index) > len(SITES):
         print('Error: invalid option, index is out of range')
         sys.exit(1)
+
+    s = random.randint(0, 145)
+    print(f'sleep {s}s before running')
+    time.sleep(s)
 
     sys.exit(main(args, SITES[args.index]))
