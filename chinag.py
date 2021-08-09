@@ -6,6 +6,8 @@ import random
 import time
 import firebase_admin
 from firebase_admin import firestore
+from firebase_admin import credentials
+
 
 SITE1 = 'j01.best'
 SITE2 = 'j04.space'
@@ -83,7 +85,8 @@ if __name__ == '__main__':
         print('Error: invalid option, index is out of range')
         sys.exit(1)
 
-    default_app = firebase_admin.initialize_app()
+    cred = credentials.Certificate(os.path.abspath("~/service-account-file.json"))
+    default_app = firebase_admin.initialize_app(cred)
 
     s = random.randint(0, 145)
     print(f'sleep {s}s before running')
