@@ -87,14 +87,33 @@ if __name__ == '__main__':
 
     cred = credentials.Certificate(os.path.expanduser("~/service-account-file.json"))
     default_app = firebase_admin.initialize_app(cred)
+    db = firestore.client(default_app)
+    doc_ref = db.collection('checked').document('DUZA2gGVjdSflSOHKvW1')
+    doc = doc_ref.get()
+
+    if doc.exists:
+        hour = datetime.datetime.today().hour
+        data = doc.to_dict()
+        print(data)
+        if 'checked' in data:
+            if hour == 0:
+                doc_ref.set({'checked': false})
+            elif data['checked']:
+                sys.exit(0)
+
+            if random.random(hour, 23) == 23:
+                doc_ref.set({'checked': true})
+            else:
+                sys.exit(0)
+        else:
+            doc.set({'checked': false})
+            sys.exit(0)
+    else:
+        print('Error: doc not found')
+        sys.exit(1)
 
     s = random.randint(0, 145)
     print(f'sleep {s}s before running')
     #time.sleep(s)
-
-    db = firestore.client(default_app)
-    doc = db.collection('checked').document('DUZA2gGVjdSflSOHKvW1')
-    print(doc.get())
-    print(doc.get(['checked']))
 
     #sys.exit(main(args, SITES[args.index]))
