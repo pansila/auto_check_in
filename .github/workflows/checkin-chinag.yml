@@ -13,7 +13,7 @@ jobs:
   checkin:
     runs-on: ubuntu-latest
     env:
-      GOOGLE_APPLICATION_CREDENTIALS: $HOME/service-account-file.json
+      GOOGLE_APPLICATION_CREDENTIALS: ~/service-account-file.json
 
     steps:
     - uses: actions/checkout@v2
