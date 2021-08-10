@@ -5,16 +5,24 @@ import argparse
 import requests
 import random
 import time
-import firebase_admin
+import json
 from datetime import datetime
-from firebase_admin import firestore
-from firebase_admin import credentials
 
 
 SITE1 = 'http://j01.best'
 SITE2 = 'https://j04.space'
 SITES = [SITE2, SITE1]
 
+CONFIG_DB = 'db.json'
+# {
+#   'username1': {
+#       'checked': False,
+#       'last_time_checked': '2020-02-20 20:20:20'
+#   },
+#   ...
+# }
+
+URL_HOME   = '{}'
 URL_LOGIN   = '{}/auth/register'
 URL_USER1   = '{}/user'
 URL_SIGNIN  = '{}/signin?c={}' # http://j01.best/signin?c=0.8043126313168425
@@ -26,7 +34,7 @@ HEADERS = {
     'Accept': 'application/json, text/plain, */*',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
     'Content-Type': 'application/json;charset=UTF-8',
-    'Origin': '{}',
+    #'Origin': 'http://j01.best',
     #'Referer': 'http://j01.best/signin',
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -38,8 +46,13 @@ def rand():
 def main(args, site):
     now = time.time()
     s = requests.Session()
-    HEADERS['Origin'] = HEADERS['Origin'].format(site)
 
+    r = s.get(URL_HOME.format(site), headers=HEADERS)
+    if r.status_code != 200:
+        print('Error: login: error')
+        return 1
+
+    HEADERS['Origin'] = site
     r = s.get(URL_LOGIN.format(site), headers=HEADERS)
     if r.status_code != 200:
         print('Error: login: error')
@@ -61,7 +74,7 @@ def main(args, site):
         print('Error: user1: error')
         return 1
 
-    HEADERS['Referer'] = URL_USER1 + '?ran={}'.format(rand())
+    HEADERS['Referer'] = URL_USER1.format(site) + '?ran={}'.format(rand())
     r = s.post(URL_CHECKIN.format(site, rand()), headers=HEADERS)
     if r.status_code != 200:
         print('Error: checkin: error')
@@ -75,6 +88,29 @@ def main(args, site):
     print(f'time used: {time.time() -  now}')
     return 0
 
+def load_config(args):
+    config = {
+        args.username: {
+            'checked': False,
+        }
+    }
+    while True:
+        if not os.path.exists(CONFIG_DB):
+            break
+        with open(CONFIG_DB) as f:
+            data = f.read()
+            if not data.strip():
+                break
+            config = json.loads(data)
+        break
+
+    if args.username not in config:
+        config[args.username] = {
+            'checked': False
+        }
+
+    return config
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('username')
@@ -87,31 +123,33 @@ if __name__ == '__main__':
         print('Error: invalid option, index is out of range')
         sys.exit(1)
 
-    cred = credentials.Certificate(os.path.expanduser("~/service-account-file.json"))
-    default_app = firebase_admin.initialize_app(cred)
-    db = firestore.client(default_app)
-    doc_ref = db.collection('checked').document('DUZA2gGVjdSflSOHKvW1')
-    doc = doc_ref.get()
+    ret = 0
+    config = load_config(args)
+    today = datetime.today()
+    print(today, today.hour)
 
-    if doc.exists:
-        hour = datetime.today().hour
-        if 'checked' not in doc.to_dict():
-            doc_ref.set({'checked': False})
-        if hour == 0:
-            doc_ref.set({'checked': False})
-        elif doc_ref.get().to_dict()['checked']:
-            sys.exit(0)
+    for i in range(1):
+        # reset the mark in the first time running of the day
+        if today.hour <= 8:
+            config[args.username]['checked'] = False
+        elif config[args.username]['checked']:
+            print('Has checked in today')
+            break
 
-        if random.randint(hour, 23) == 23:
-            doc_ref.set({'checked': True})
+        if random.randint(today.hour, 23) == 23:
+            config[args.username]['checked'] = True
+            config[args.username]['last_time_checked'] = today.isoformat()
         else:
-            sys.exit(0)
+            print('Skip the running')
+            break
     else:
-        print('Error: doc not found')
-        sys.exit(1)
+        s = random.randint(0, 145)
+        print(f'sleep {s}s before running')
+        time.sleep(s)
 
-    s = random.randint(0, 145)
-    print(f'sleep {s}s before running')
-    time.sleep(s)
+        ret = main(args, SITES[args.index])
 
-    sys.exit(main(args, SITES[args.index]))
+    with open(CONFIG_DB, 'w') as f:
+        f.write(json.dumps(config, indent=4))
+
+    sys.exit(ret)
