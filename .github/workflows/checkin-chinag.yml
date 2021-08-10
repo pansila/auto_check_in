@@ -28,6 +28,8 @@ jobs:
       continue-on-error: true
       id: checkout_run
       run: |
+        git config user.email "you@example.com"
+        git config user.name "github_workflow"
         git checkout run
         git cherry-pick main > ${{ github.workspace }}/checkin.log
     - name: Check empty commit
