@@ -1,10 +1,9 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Check In Chinag
+name: Check In ChinaG
 
 on:
-  repository_dispatch:
   workflow_dispatch:
   schedule:
     - cron: 17 8-23 * * *
@@ -25,6 +24,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check In
       run: |
+        git fetch origin refs/remotes/origin/run
         git checkout --progress --force -B run refs/remotes/origin/run
         ret=$(git cherry-pick main)
         if [ '$?' != '0' ]; then
