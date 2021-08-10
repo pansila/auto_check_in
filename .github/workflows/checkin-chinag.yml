@@ -23,7 +23,7 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        pip install requests
+        pip install requests pytz
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Checkout running branch
       continue-on-error: true

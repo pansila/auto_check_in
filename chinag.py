@@ -9,7 +9,7 @@ import json
 import hashlib
 import binascii
 import pytz
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 SITE1 = 'http://j01.best'
@@ -29,7 +29,7 @@ CONFIG_DB = 'db.json'
 #   ...
 # }
 
-URL_HOME   = '{}'
+URL_HOME    = '{}'
 URL_LOGIN   = '{}/auth/register'
 URL_USER1   = '{}/user'
 URL_SIGNIN  = '{}/signin?c={}' # http://j01.best/signin?c=0.8043126313168425
@@ -40,7 +40,7 @@ HEADERS = {
     'Connection': 'keep-alive',
     'Accept': 'application/json, text/plain, */*',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
-    'Content-Type': 'application/json;charset=UTF-8',
+    #'Content-Type': 'application/json;charset=UTF-8',
     #'Origin': 'http://j01.best',
     #'Referer': 'http://j01.best/signin',
     'Accept-Encoding': 'gzip, deflate',
@@ -53,43 +53,51 @@ def rand():
 def main(args, site):
     now = time.time()
     s = requests.Session()
+    url_home    = URL_HOME.format(site)
+    url_login   = URL_LOGIN.format(site)
+    url_user1   = URL_USER1.format(site)
+    url_signin  = URL_SIGNIN.format(site, rand())
+    url_checkin = URL_CHECKIN.format(site, rand())
+    url_user2   = URL_USER2.format(site, rand())
 
-    r = s.get(URL_HOME.format(site), headers=HEADERS)
+    r = s.get(url_home, headers=HEADERS)
     if r.status_code != 200:
-        print('Error: login: error')
+        print(f'Error: {url_home}')
         return 1
 
     HEADERS['Origin'] = site
-    r = s.get(URL_LOGIN.format(site), headers=HEADERS)
+    r = s.get(url_login, headers=HEADERS)
     if r.status_code != 200:
-        print('Error: login: error')
+        print(f'Error: {url_login}')
         return 1
 
-    HEADERS['Referer'] = HEADERS['Origin'] + '/signin'
-    r = s.post(URL_SIGNIN.format(site, rand()),
-                      json={
-                          'email': args.username,
-                          'passwd': args.password
-                      },
-                      headers=HEADERS)
+    HEADERS['Referer'] = f'{site}/signin'
+    HEADERS['Content-Type'] = 'application/json;charset=UTF-8'
+    r = s.post(url_signin,
+               json={
+                   'email': args.username,
+                   'passwd': args.password
+               },
+               headers=HEADERS)
     if r.status_code != 200:
-        print('Error: signin: error')
+        print(f'Error: {url_signin}')
         return 1
 
-    r = s.get(URL_USER1.format(site), headers=HEADERS)
+    del HEADERS['Content-Type']
+    r = s.get(url_user1, headers=HEADERS)
     if r.status_code != 200:
-        print('Error: user1: error')
+        print(f'Error: {url_user1}')
         return 1
 
-    HEADERS['Referer'] = URL_USER1.format(site) + '?ran={}'.format(rand())
-    r = s.post(URL_CHECKIN.format(site, rand()), headers=HEADERS)
+    HEADERS['Referer'] = f'{url_user1}?ran={rand()}')
+    r = s.post(url_checkin, headers=HEADERS)
     if r.status_code != 200:
-        print('Error: checkin: error')
+        print(f'Error: {url_checkin}')
         return 1
 
-    r = s.get(URL_USER2.format(site, rand()), headers=HEADERS)
+    r = s.get(url_user2, headers=HEADERS)
     if r.status_code != 200:
-        print('Error: user2: error')
+        print(f'Error: {url_user2}')
         return 1
 
     print(f'time used: {time.time() -  now}')
@@ -153,8 +161,7 @@ if __name__ == '__main__':
 
         rnd = random.randint(today.hour, RUN_TIME_RANGE_END)
         if rnd == RUN_TIME_RANGE_END:
-            config[username_hash]['checked'] = True
-            config[username_hash]['last_time_checked'] = (today + timedelta(hours=8)).isoformat()
+            print(f'Starting to work on {today.isoformat(" ")}')
         else:
             print(f'Skip the running, {rnd} in [{today.hour}, {RUN_TIME_RANGE_END}]')
             break
@@ -164,6 +171,9 @@ if __name__ == '__main__':
         time.sleep(s)
 
         ret = main(args, SITES[args.index])
+        if ret == 0:
+            config[username_hash]['checked'] = True
+            config[username_hash]['last_time_checked'] = today.isoformat(' ')
 
     with open(CONFIG_DB, 'w') as f:
         f.write(json.dumps(config, indent=4))
