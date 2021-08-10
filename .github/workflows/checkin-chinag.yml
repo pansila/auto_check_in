@@ -34,7 +34,10 @@ jobs:
             git cherry-pick --abort
           else
             echo $ret
-            exit 1
+            echo 'Force to apply their changes'
+            git checkout --theirs .
+            git add .
+            git cherry-pick --continue
           fi
         else
           git push origin run:run
