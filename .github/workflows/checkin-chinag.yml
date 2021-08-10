@@ -7,7 +7,7 @@ on:
   repository_dispatch:
   workflow_dispatch:
   schedule:
-    - cron: 17 * * * *
+    - cron: 17 8-23 * * *
 
 jobs:
   checkin:
@@ -21,10 +21,9 @@ jobs:
         python-version: 3.9
     - name: Install dependencies
       run: |
-        pip install requests firebase-admin
+        pip install requests
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check In
       run: |
-        echo ${{ secrets.FIREBASE_KEY }} | base64 -d > $HOME/service-account-file.json
         ./chinag.py ${{ secrets.CHINAG_USERNAME1 }} ${{ secrets.CHINAG_PASSWORD1 }}
         ./chinag.py ${{ secrets.CHINAG_USERNAME2 }} ${{ secrets.CHINAG_PASSWORD2 }}
