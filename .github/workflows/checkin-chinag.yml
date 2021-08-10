@@ -25,5 +25,22 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check In
       run: |
+        git checkout run
+        ret=$(git cherry-pick main)
+        if [ '$?' != '0' ]; then
+          echo $ret | grep 'nothing to commit, working tree clean'
+          if [ '$?' = '0' ]; then
+            git cherry-pick --abort
+          else
+            echo $ret
+            exit 1
+          fi
+        fi
         ./chinag.py ${{ secrets.CHINAG_USERNAME1 }} ${{ secrets.CHINAG_PASSWORD1 }}
         ./chinag.py ${{ secrets.CHINAG_USERNAME2 }} ${{ secrets.CHINAG_PASSWORD2 }}
+        ret=$(git status -s)
+        if [ -n $ret ]; then
+          git add .
+          git commit -m 'checked in'
+          git push origin run:run
+        fi
