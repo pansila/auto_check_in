@@ -6,7 +6,7 @@ name: Check In ChinaG
 on:
   workflow_dispatch:
   schedule:
-    - cron: 17 8-23 * * *
+    - cron: 37 0-15 * * *
 
 jobs:
   checkin:
@@ -14,8 +14,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    - name: Fetch branch run
+      run: |
+        git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules --depth=1 origin +refs/heads/run:refs/remotes/origin/run
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -31,13 +32,13 @@ jobs:
         git config user.email "you@example.com"
         git config user.name "github_workflow"
         git checkout run
-        git cherry-pick main > $HOME/checkin.log
+        git cherry-pick main > /tmp/checkin.log
     - name: Check empty commit
       continue-on-error: true
       id: check_empty_commit
       if: steps.checkout_run.outcome != 'success'
       run: |
-        cat $HOME/checkin.log | grep 'nothing to commit, working tree clean'
+        cat /tmp/checkin.log | grep 'nothing to commit, working tree clean'
     - name: Abort the cherry pick if nothing to commit
       if: steps.check_empty_commit.outcome == 'success'
       run: |
