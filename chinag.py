@@ -89,7 +89,7 @@ def main(args, site):
         print(f'Error: {url_user1}')
         return 1
 
-    HEADERS['Referer'] = f'{url_user1}?ran={rand()}')
+    HEADERS['Referer'] = f'{url_user1}?ran={rand()}'
     r = s.post(url_checkin, headers=HEADERS)
     if r.status_code != 200:
         print(f'Error: {url_checkin}')
