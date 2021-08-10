@@ -31,13 +31,13 @@ jobs:
         git config user.email "you@example.com"
         git config user.name "github_workflow"
         git checkout run
-        git cherry-pick main > ${{ github.workspace }}/checkin.log
+        git cherry-pick main > ${{ env.HOME }}/checkin.log
     - name: Check empty commit
       continue-on-error: true
       id: check_empty_commit
       if: steps.checkout_run.outcome != 'success'
       run: |
-        cat ${{ github.workspace }}/checkin.log | grep 'nothing to commit, working tree clean'
+        cat ${{ env.HOME }}/checkin.log | grep 'nothing to commit, working tree clean'
     - name: Abort the cherry pick if nothing to commit
       if: steps.check_empty_commit.outcome == 'success'
       run: |
