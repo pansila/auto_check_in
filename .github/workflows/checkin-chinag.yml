@@ -61,7 +61,7 @@ jobs:
     - name: Update the check-in events
       run: |
         ret=$(git status -s)
-        if [ -n $ret ]; then
+        if [ -n '$ret' ]; then
           git add .
           git commit -m 'checked in'
           git push origin run:run
