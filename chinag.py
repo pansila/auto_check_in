@@ -8,16 +8,17 @@ import time
 import json
 import hashlib
 import binascii
-from datetime import datetime
+import pytz
+from datetime import datetime, timedelta
 
 
 SITE1 = 'http://j01.best'
 SITE2 = 'https://j04.space'
 SITES = [SITE2, SITE1]
 
-# should be same as the cron schedule time in the workflow
-RUN_TIME_RANGE_START = 0
-RUN_TIME_RANGE_END = 15
+# sensible human living daytime
+RUN_TIME_RANGE_START = 8
+RUN_TIME_RANGE_END = 23
 
 CONFIG_DB = 'db.json'
 # {
@@ -134,7 +135,8 @@ if __name__ == '__main__':
     username_hash = binascii.hexlify(sha256.digest()).decode()
 
     config = load_config(args, username_hash)
-    today = datetime.today()
+    today = datetime.today() # UTC time
+    today = today.astimezone(pytz.timezone('Asia/Shanghai'))
     ret = 0
 
     for i in range(1):
@@ -146,13 +148,13 @@ if __name__ == '__main__':
             ret = 1
             break
         elif config[username_hash]['checked']:
-            print(f'{username_hash} Has been checked today')
+            print(f'user {username_hash} has checked in today')
             break
 
         rnd = random.randint(today.hour, RUN_TIME_RANGE_END)
         if rnd == RUN_TIME_RANGE_END:
             config[username_hash]['checked'] = True
-            config[username_hash]['last_time_checked'] = today.isoformat()
+            config[username_hash]['last_time_checked'] = (today + timedelta(hours=8)).isoformat()
         else:
             print(f'Skip the running, {rnd} in [{today.hour}, {RUN_TIME_RANGE_END}]')
             break
