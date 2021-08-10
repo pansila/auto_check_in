@@ -25,6 +25,7 @@ jobs:
         pip install requests
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check In
+      continue-on-error: true
       run: |
         git checkout run
         ret=$(git cherry-pick main)
@@ -38,6 +39,7 @@ jobs:
             git checkout --theirs .
             git add .
             git cherry-pick --continue
+            git push origin run:run
           fi
         else
           git push origin run:run
