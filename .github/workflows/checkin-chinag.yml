@@ -1,10 +1,9 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Check In Chinag
+name: Check In ChinaG
 
 on:
-  repository_dispatch:
   workflow_dispatch:
   schedule:
     - cron: 17 8-23 * * *
@@ -15,6 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -23,7 +24,45 @@ jobs:
       run: |
         pip install requests
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Checkout running branch
+      continue-on-error: true
+      id: checkout_run
+      run: |
+        git config user.email "you@example.com"
+        git config user.name "github_workflow"
+        git checkout run
+        git cherry-pick main > ${{ github.workspace }}/checkin.log
+    - name: Check empty commit
+      continue-on-error: true
+      id: check_empty_commit
+      if: steps.checkout_run.outcome != 'success'
+      run: |
+        cat ${{ github.workspace }}/checkin.log | grep 'nothing to commit, working tree clean'
+    - name: Abort the cherry pick if nothing to commit
+      if: steps.check_empty_commit.outcome == 'success'
+      run: |
+        git cherry-pick --abort
+    - name: Resolve cherry pick conflicts
+      if: steps.check_empty_commit.outcome != 'success'
+      run: |
+        echo 'Force to apply their changes'
+        git checkout --theirs .
+        git add .
+        git cherry-pick --continue
+        git push origin run:run
+    - name: Push cherry-picked commits
+      if: steps.checkout_run.outcome == 'success'
+      run: |
+          git push origin run:run
     - name: Check In
       run: |
         ./chinag.py ${{ secrets.CHINAG_USERNAME1 }} ${{ secrets.CHINAG_PASSWORD1 }}
         ./chinag.py ${{ secrets.CHINAG_USERNAME2 }} ${{ secrets.CHINAG_PASSWORD2 }}
+    - name: Update the check-in events
+      run: |
+        ret=$(git status -s)
+        if [ -n $ret ]; then
+          git add .
+          git commit -m 'checked in'
+          git push origin run:run
+        fi
