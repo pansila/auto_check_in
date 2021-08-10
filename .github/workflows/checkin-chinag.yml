@@ -6,7 +6,7 @@ name: Check In ChinaG
 on:
   workflow_dispatch:
   schedule:
-    - cron: 17 8-23 * * *
+    - cron: 37 0-15 * * *
 
 jobs:
   checkin:
@@ -14,8 +14,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+    - name: Fetch branch run
+      run: |
+        git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules --depth=1 origin +refs/heads/run:refs/remotes/origin/run
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
