@@ -6,6 +6,8 @@ import requests
 import random
 import time
 import json
+import hashlib
+import binascii
 from datetime import datetime
 
 
@@ -88,9 +90,9 @@ def main(args, site):
     print(f'time used: {time.time() -  now}')
     return 0
 
-def load_config(args):
+def load_config(args, username_hash):
     config = {
-        args.username: {
+        username_hash: {
             'checked': False,
         }
     }
@@ -104,8 +106,8 @@ def load_config(args):
             config = json.loads(data)
         break
 
-    if args.username not in config:
-        config[args.username] = {
+    if username_hash not in config:
+        config[username_hash] = {
             'checked': False
         }
 
@@ -123,22 +125,25 @@ if __name__ == '__main__':
         print('Error: invalid option, index is out of range')
         sys.exit(1)
 
-    ret = 0
-    config = load_config(args)
+    sha256 = hashlib.sha256()
+    sha256.update(args.username.encode())
+    username_hash = binascii.hexlify(sha256.digest()).decode()
+
+    config = load_config(args, username_hash)
     today = datetime.today()
-    print(today, today.hour)
+    ret = 0
 
     for i in range(1):
         # reset the mark in the first time running of the day
         if today.hour <= 8:
-            config[args.username]['checked'] = False
-        elif config[args.username]['checked']:
+            config[username_hash]['checked'] = False
+        elif config[username_hash]['checked']:
             print('Has checked in today')
             break
 
         if random.randint(today.hour, 23) == 23:
-            config[args.username]['checked'] = True
-            config[args.username]['last_time_checked'] = today.isoformat()
+            config[username_hash]['checked'] = True
+            config[username_hash]['last_time_checked'] = today.isoformat()
         else:
             print('Skip the running')
             break
