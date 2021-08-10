@@ -26,8 +26,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check In
       run: |
-        git fetch origin refs/remotes/origin/run
-        git checkout --progress --force -B run refs/remotes/origin/run
+        git checkout run
         ret=$(git cherry-pick main)
         if [ '$?' != '0' ]; then
           echo $ret | grep 'nothing to commit, working tree clean'
