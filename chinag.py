@@ -149,11 +149,12 @@ if __name__ == '__main__':
             print(f'{username_hash} Has been checked today')
             break
 
-        if random.randint(today.hour, RUN_TIME_RANGE_END) == RUN_TIME_RANGE_END:
+        rnd = random.randint(today.hour, RUN_TIME_RANGE_END)
+        if rnd == RUN_TIME_RANGE_END:
             config[username_hash]['checked'] = True
             config[username_hash]['last_time_checked'] = today.isoformat()
         else:
-            print('Skip the running')
+            print(f'Skip the running, {rnd} in [{today.hour}, {RUN_TIME_RANGE_END}]')
             break
     else:
         s = random.randint(0, 145)
