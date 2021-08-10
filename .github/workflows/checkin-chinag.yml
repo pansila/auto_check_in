@@ -29,11 +29,11 @@ jobs:
       id: checkout_run
       run: |
         git checkout run
-        git cherry-pick main > ${{ github.work_space }}/checkin.log
+        git cherry-pick main > ${{ github.workspace }}/checkin.log
     - name: Resolve cherry pick conflicts
       if: steps.checkout_run.outcome != 'success'
       run: |
-        cat ${{ github.work_space }}/checkin.log | grep 'nothing to commit, working tree clean'
+        cat ${{ github.workspace }}/checkin.log | grep 'nothing to commit, working tree clean'
         if [ '$?' = '0' ]; then
           git cherry-pick --abort
         else
