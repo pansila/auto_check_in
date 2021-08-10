@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Fetch branch run
+    - name: Fetch branch 'run'
       run: |
         git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules --depth=1 origin +refs/heads/run:refs/remotes/origin/run
     - name: Set up Python 3.9
@@ -62,7 +62,8 @@ jobs:
     - name: Update the check-in events
       run: |
         ret=$(git status -s)
-        if [ -n '$ret' ]; then
+        if [ -n "$ret" ]; then
+          echo "$ret"
           git add .
           git commit -m 'checked in'
           git push origin run:run
