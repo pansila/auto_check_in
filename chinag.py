@@ -15,6 +15,10 @@ SITE1 = 'http://j01.best'
 SITE2 = 'https://j04.space'
 SITES = [SITE2, SITE1]
 
+# should be same as the cron schedule time in the workflow
+RUN_TIME_RANGE_START = 0
+RUN_TIME_RANGE_END = 15
+
 CONFIG_DB = 'db.json'
 # {
 #   'username1': {
@@ -135,13 +139,17 @@ if __name__ == '__main__':
 
     for i in range(1):
         # reset the mark in the first time running of the day
-        if today.hour <= 8:
+        if today.hour == RUN_TIME_RANGE_START:
             config[username_hash]['checked'] = False
+        elif today.hour > RUN_TIME_RANGE_END or today.hour < RUN_TIME_RANGE_START:
+            print(f'Error: mismatched scheduling, now is hour {today.hour}, expected to between {RUN_TIME_RANGE_START} and {RUN_TIME_RANGE_END}')
+            ret = 1
+            break
         elif config[username_hash]['checked']:
-            print('Has checked in today')
+            print(f'{username_hash} Has been checked today')
             break
 
-        if random.randint(today.hour, 23) == 23:
+        if random.randint(today.hour, RUN_TIME_RANGE_END) == RUN_TIME_RANGE_END:
             config[username_hash]['checked'] = True
             config[username_hash]['last_time_checked'] = today.isoformat()
         else:
