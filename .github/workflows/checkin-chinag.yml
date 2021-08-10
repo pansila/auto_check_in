@@ -25,7 +25,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Check In
       run: |
-        git checkout run
+        git checkout --progress --force -B run refs/remotes/origin/run
         ret=$(git cherry-pick main)
         if [ '$?' != '0' ]; then
           echo $ret | grep 'nothing to commit, working tree clean'
@@ -35,6 +35,8 @@ jobs:
             echo $ret
             exit 1
           fi
+        else
+          git push origin run:run
         fi
         ./chinag.py ${{ secrets.CHINAG_USERNAME1 }} ${{ secrets.CHINAG_PASSWORD1 }}
         ./chinag.py ${{ secrets.CHINAG_USERNAME2 }} ${{ secrets.CHINAG_PASSWORD2 }}
