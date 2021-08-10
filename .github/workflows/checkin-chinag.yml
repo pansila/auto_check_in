@@ -33,17 +33,16 @@ jobs:
     - name: Resolve cherry pick conflicts
       if: steps.checkout_run.outcome != 'success'
       run: |
-          cat /temp/checkin.log | grep 'nothing to commit, working tree clean'
-          if [ '$?' = '0' ]; then
-            git cherry-pick --abort
-          else
-            echo 'Force to apply their changes'
-            git checkout --theirs .
-            git add .
-            git cherry-pick --continue
-            git push origin run:run
-          fi
+        cat /temp/checkin.log | grep 'nothing to commit, working tree clean'
+        if [ '$?' = '0' ]; then
+          git cherry-pick --abort
         else
+          echo 'Force to apply their changes'
+          git checkout --theirs .
+          git add .
+          git cherry-pick --continue
+          git push origin run:run
+        fi
     - name: Push cherry-picked commits
       if: steps.checkout_run.outcome == 'success'
       run: |
