@@ -30,19 +30,23 @@ jobs:
       run: |
         git checkout run
         git cherry-pick main > ${{ github.workspace }}/checkin.log
-    - name: Resolve cherry pick conflicts
+    - name: Check empty commit
+      id: check_empty_commit
       if: steps.checkout_run.outcome != 'success'
       run: |
         cat ${{ github.workspace }}/checkin.log | grep 'nothing to commit, working tree clean'
-        if [ '$?' = '0' ]; then
-          git cherry-pick --abort
-        else
-          echo 'Force to apply their changes'
-          git checkout --theirs .
-          git add .
-          git cherry-pick --continue
-          git push origin run:run
-        fi
+    - name: Abort the cherry pick if nothing to commit
+      if: steps.check_empty_commit.outcome == 'success'
+      run: |
+        git cherry-pick --abort
+    - name: Resolve cherry pick conflicts
+      if: steps.check_empty_commit.outcome != 'success'
+      run: |
+        echo 'Force to apply their changes'
+        git checkout --theirs .
+        git add .
+        git cherry-pick --continue
+        git push origin run:run
     - name: Push cherry-picked commits
       if: steps.checkout_run.outcome == 'success'
       run: |
