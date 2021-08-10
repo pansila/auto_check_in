@@ -31,6 +31,7 @@ jobs:
         git checkout run
         git cherry-pick main > ${{ github.workspace }}/checkin.log
     - name: Check empty commit
+      continue-on-error: true
       id: check_empty_commit
       if: steps.checkout_run.outcome != 'success'
       run: |
