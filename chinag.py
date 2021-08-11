@@ -17,7 +17,7 @@ SITE2 = 'https://j04.space'
 SITES = [SITE2, SITE1]
 
 # sensible human living daytime
-RUN_TIME_RANGE_START = 8
+RUN_TIME_RANGE_START = 10
 RUN_TIME_RANGE_END = 23
 
 CONFIG_DB = 'db.json'
