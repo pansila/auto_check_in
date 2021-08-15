@@ -2,13 +2,6 @@
 import os
 import sys
 import argparse
-import random
-import time
-import json
-import hashlib
-import binascii
-import pytz
-from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -18,18 +11,6 @@ SITE1 = 'http://j01.best'
 SITE2 = 'https://j04.space'
 SITES = [SITE2, SITE1]
 
-# sensible human living daytime
-RUN_TIME_RANGE_START = 9
-RUN_TIME_RANGE_END = 23
-
-CONFIG_DB = 'db.json'
-# {
-#   'username1': {
-#       'checked': False,
-#       'last_time_checked': '2020-02-20 20:20:20'
-#   },
-#   ...
-# }
 
 URL_HOME    = '{}'
 URL_LOGIN   = '{}/auth/register'
@@ -118,29 +99,6 @@ def main(args, site):
 
     print(f'time used: {time.time() -  now}')
     return 0
-
-def load_config(args, username_hash):
-    config = {
-        username_hash: {
-            'checked': False,
-        }
-    }
-    while True:
-        if not os.path.exists(CONFIG_DB):
-            break
-        with open(CONFIG_DB) as f:
-            data = f.read()
-            if not data.strip():
-                break
-            config = json.loads(data)
-        break
-
-    if username_hash not in config:
-        config[username_hash] = {
-            'checked': False
-        }
-
-    return config
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
