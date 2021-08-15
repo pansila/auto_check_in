@@ -7,6 +7,42 @@ import random
 import json
 from datetime import datetime
 
+# sensible human living daytime
+RUN_TIME_RANGE_START = 9
+RUN_TIME_RANGE_END = 23
+
+CONFIG_DB = 'db.json'
+# {
+#   'username1': {
+#       'checked': False,
+#       'last_time_checked': '2020-02-20 20:20:20'
+#   },
+#   ...
+# }
+
+def load_config(args, username_hash):
+    config = {
+        username_hash: {
+            'checked': False,
+        }
+    }
+    while True:
+        if not os.path.exists(CONFIG_DB):
+            break
+        with open(CONFIG_DB) as f:
+            data = f.read()
+            if not data.strip():
+                break
+            config = json.loads(data)
+        break
+
+    if username_hash not in config:
+        config[username_hash] = {
+            'checked': False
+        }
+
+    return config
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('username')
