@@ -55,10 +55,19 @@ jobs:
       if: steps.checkout_run.outcome == 'success'
       run: |
           git push origin run:run
+    - name: Whether to trigger a run
+      id: to_run
+      run |
+        ./trigger.py ${{ secrets.CHINAG_ACCOUNTS }} > $GITHUB_ENV
+    - name: Install extra dependencies
+      run: |
+        pip install selenium
+        wget https://chromedriver.storage.googleapis.com/92.0.4515.107/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip -D /tmp
+        mv /tmp/chromedriver /usr/bin
     - name: Check In
       run: |
-        ./chinag.py ${{ secrets.CHINAG_USERNAME1 }} ${{ secrets.CHINAG_PASSWORD1 }}
-        ./chinag.py ${{ secrets.CHINAG_USERNAME2 }} ${{ secrets.CHINAG_PASSWORD2 }}
+        ./chinag.py
     - name: Update the check-in events
       run: |
         ret=$(git status -s)
