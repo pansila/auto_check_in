@@ -58,7 +58,7 @@ jobs:
     - name: Whether to trigger a run
       continue-on-error: true
       id: to_run
-      run |
+      run: |
         ./trigger.py ${{ secrets.CHINAG_ACCOUNTS }} > $GITHUB_ENV
     - name: Install extra dependencies
       if: steps.to_run.outcome == 'success'
